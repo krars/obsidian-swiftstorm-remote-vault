@@ -4,7 +4,7 @@
   "version": "1.1.0",
   "minAppVersion": "0.15.0",
   "description": "Двусторонняя синхронизация с удаленным хранилищем swiftStorm через безопасное Telegram-подтверждение",
-  "author": "swiftStorm Team",
+  "author": "Kravchuk A.S.",
   "authorUrl": "https://github.com/krars/swiftstorm",
   "fundingUrl": "https://github.com/sponsors/krars",
   "isDesktopOnly": true,
