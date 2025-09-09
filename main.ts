@@ -247,6 +247,17 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 		}
 
 		try {
+			console.log('🔍 [Plugin] Настройки плагина:', this.settings);
+			console.log('🔍 [Plugin] Username:', this.settings.username);
+			console.log('🔍 [Plugin] Webhook URL:', this.settings.webhookUrl);
+			console.log('🔍 [Plugin] Is registered:', this.settings.isRegistered);
+			
+			// Проверяем, что username не пустой
+			if (!this.settings.username || this.settings.username.trim() === '') {
+				new Notice('❌ Username не заполнен. Заполните поле "Username" в настройках плагина.');
+				return;
+			}
+			
 			new Notice('🔄 Синхронизация с swiftStorm хранилищем...');
 			
 			// Отправляем запрос на синхронизацию
@@ -349,7 +360,23 @@ ${data.vault.folders?.map(folder => `- **📁 ${folder}/**`).join('\n') || 'Па
 			}
 		} catch (error) {
 			console.error('Ошибка синхронизации:', error);
-			new Notice(`❌ Ошибка сети: ${error.message}`);
+			console.error('Детали ошибки:', {
+				message: error.message,
+				name: error.name,
+				stack: error.stack
+			});
+			
+			// Более детальное сообщение об ошибке
+			let errorMessage = '❌ Ошибка синхронизации: ';
+			if (error.message.includes('fetch')) {
+				errorMessage += 'Проблема с сетевым соединением. Проверьте интернет.';
+			} else if (error.message.includes('username')) {
+				errorMessage += 'Проблема с username. Проверьте настройки плагина.';
+			} else {
+				errorMessage += error.message;
+			}
+			
+			new Notice(errorMessage);
 		}
 	}
 

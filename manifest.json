@@ -1,7 +1,7 @@
 {
   "id": "swiftstorm-remote-vault",
   "name": "swiftStorm Remote Vault",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "minAppVersion": "0.15.0",
   "description": "Двусторонняя синхронизация с удаленным хранилищем swiftStorm через безопасное Telegram-подтверждение",
   "author": "Kravchuk A.S.",
