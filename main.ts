@@ -446,6 +446,14 @@ class swiftStormSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		containerEl.createEl('h2', {text: 'swiftStorm Remote Vault настройки'});
+		
+		// Информация о боте
+		containerEl.createEl('div', {cls: 'setting-item'}).createEl('div', {cls: 'setting-item-info'}).createEl('div', {cls: 'setting-item-name'}).createEl('a', {
+			text: '🤖 swiftStorm Bot в Telegram',
+			href: 'https://t.me/swiftstorm_bot',
+			attr: {target: '_blank'}
+		});
+		containerEl.createEl('div', {cls: 'setting-item-description'}).setText('Сначала зарегистрируйтесь в боте swiftStorm, чтобы получить доступ к хранилищу');
 
 		// Статус подключения
 		new Setting(containerEl)
