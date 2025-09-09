@@ -259,21 +259,15 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 						}
 					}
 					
-					// Создаем файлы из данных сервера прямо в корне хранилища
+					// Умная синхронизация файлов
 					if (data.vault.files) {
 						for (const file of data.vault.files) {
-							const filePath = file.name; // Используем путь как есть
-							const content = file.content || `# ${file.name}\n\nФайл синхронизирован с swiftStorm хранилища.`;
+							// Определяем, является ли папка системной
+							const folderName = file.name.split('/')[0];
+							const isSystemFolder = this.isSystemFolder(folderName);
 							
-							try {
-								await this.app.vault.create(filePath, content);
-							} catch (error) {
-								// Если файл уже существует, обновляем его
-								const existingFile = this.app.vault.getAbstractFileByPath(filePath);
-								if (existingFile) {
-									await this.app.vault.modify(existingFile as any, content);
-								}
-							}
+							// Используем умную синхронизацию
+							await this.smartSyncFile(file, isSystemFolder);
 						}
 					}
 					
@@ -300,15 +294,29 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 
 ${data.vault.folders?.map(folder => `- **📁 ${folder}/**`).join('\n') || 'Папки не найдены'}
 
+## 🧠 Умная синхронизация
+
+### 🔄 Системные папки (объединение файлов):
+- **inbox/** - входящие файлы
+- **archive/** - архивные файлы  
+- **profiles/** - профили
+- **events/** - события
+
+*В этих папках локальные и серверные файлы объединяются для предотвращения потери данных.*
+
+### 📝 Обычные папки (замена файлов):
+- Все остальные папки синхронизируются с заменой содержимого
+
 ## 🚀 Возможности
 
-- Синхронизация файлов с сервера
-- Автоматическое обновление при изменениях
-- Организация документов по папкам
-- Резервное копирование в облаке
+- 🧠 **Умная синхронизация** - предотвращает потерю данных
+- 📤 **Двусторонняя синхронизация** - изменения отправляются на сервер
+- 🔄 **Автоматическое обновление** при изменениях
+- 📁 **Организация документов** по папкам
+- ☁️ **Резервное копирование** в облаке
 
 ---
-*Создано плагином swiftStorm Remote Vault v2.0*
+*Создано плагином swiftStorm Remote Vault v1.1.0*
 `;
 
 					try {
@@ -335,6 +343,57 @@ ${data.vault.folders?.map(folder => `- **📁 ${folder}/**`).join('\n') || 'Па
 
 	isConnectedToVault(): boolean {
 		return this.isConnected;
+	}
+
+	// Определяем, является ли папка системной (требует объединения файлов)
+	isSystemFolder(folderName: string): boolean {
+		const systemFolders = ['inbox', 'archive', 'profiles', 'events'];
+		return systemFolders.includes(folderName.toLowerCase());
+	}
+
+	// Умная синхронизация с объединением файлов для системных папок
+	async smartSyncFile(file: any, isSystemFolder: boolean) {
+		const filePath = file.name;
+		const serverContent = file.content || `# ${file.name}\n\nФайл синхронизирован с swiftStorm хранилища.`;
+		
+		try {
+			// Проверяем, существует ли файл локально
+			const existingFile = this.app.vault.getAbstractFileByPath(filePath);
+			
+			if (existingFile) {
+				// Файл существует локально
+				if (isSystemFolder) {
+					// Для системных папок - объединяем содержимое
+					const localContent = await this.app.vault.read(existingFile);
+					const mergedContent = this.mergeFileContents(localContent, serverContent, filePath);
+					await this.app.vault.modify(existingFile as any, mergedContent);
+					console.log(`🔄 [smartSync] Объединен файл: ${filePath}`);
+				} else {
+					// Для обычных папок - заменяем содержимое
+					await this.app.vault.modify(existingFile as any, serverContent);
+					console.log(`📝 [smartSync] Обновлен файл: ${filePath}`);
+				}
+			} else {
+				// Файл не существует - создаем новый
+				await this.app.vault.create(filePath, serverContent);
+				console.log(`✨ [smartSync] Создан файл: ${filePath}`);
+			}
+		} catch (error) {
+			console.error(`❌ [smartSync] Ошибка синхронизации файла ${filePath}:`, error);
+		}
+	}
+
+	// Объединяет содержимое локального и серверного файла
+	mergeFileContents(localContent: string, serverContent: string, filePath: string): string {
+		// Простая стратегия объединения - добавляем серверное содержимое в конец
+		// с разделителем, если файлы разные
+		if (localContent.trim() === serverContent.trim()) {
+			return localContent; // Файлы идентичны
+		}
+
+		// Добавляем серверное содержимое с разделителем
+		const separator = '\n\n---\n\n## 📡 Содержимое с сервера\n\n';
+		return localContent + separator + serverContent;
 	}
 
 	async uploadFileToServer(file: any) {
@@ -450,7 +509,7 @@ class swiftStormSettingTab extends PluginSettingTab {
 		// Информация о боте
 		containerEl.createEl('div', {cls: 'setting-item'}).createEl('div', {cls: 'setting-item-info'}).createEl('div', {cls: 'setting-item-name'}).createEl('a', {
 			text: '🤖 swiftStorm Bot в Telegram',
-			href: 'https://t.me/swiftstorm_bot',
+			href: 'https://t.me/swiftstormbot',
 			attr: {target: '_blank'}
 		});
 		containerEl.createEl('div', {cls: 'setting-item-description'}).setText('Сначала зарегистрируйтесь в боте swiftStorm, чтобы получить доступ к хранилищу');
