@@ -10,6 +10,7 @@ interface swiftStormPluginSettings {
 	telegramUsername: string;
 	confirmationToken: string;
 	isRegistered: boolean;
+	syncHiddenFiles: boolean;
 }
 
 const DEFAULT_SETTINGS: swiftStormPluginSettings = {
@@ -21,7 +22,8 @@ const DEFAULT_SETTINGS: swiftStormPluginSettings = {
 	lastSyncTime: 0,
 	telegramUsername: '',
 	confirmationToken: '',
-	isRegistered: false
+	isRegistered: false,
+	syncHiddenFiles: false
 }
 
 export default class swiftStormRemoteVaultPlugin extends Plugin {
@@ -32,9 +34,14 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'swiftStorm Remote Vault', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('refresh-cw', 'Синхронизировать swiftStorm Vault', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('swiftStorm Remote Vault подключен!');
+			if (this.settings.isRegistered) {
+				new Notice('🔄 Начинаю синхронизацию...');
+				this.syncVault();
+			} else {
+				new Notice('❌ Сначала зарегистрируйтесь через Telegram в настройках плагина');
+			}
 		});
 
 		// This adds a simple command that can be triggered anywhere
@@ -267,7 +274,8 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					username: this.settings.username
+					username: this.settings.username,
+					syncHiddenFiles: this.settings.syncHiddenFiles
 				})
 			});
 
@@ -626,6 +634,17 @@ class swiftStormSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.conflictResolution)
 				.onChange(async (value: 'size' | 'date') => {
 					this.plugin.settings.conflictResolution = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// Синхронизация скрытых файлов
+		new Setting(containerEl)
+			.setName("Синхронизация скрытых файлов")
+			.setDesc("Включить синхронизацию файлов, начинающихся с точки (.obsidian, .gitignore и т.д.)")
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.syncHiddenFiles)
+				.onChange(async (value: boolean) => {
+					this.plugin.settings.syncHiddenFiles = value;
 					await this.plugin.saveSettings();
 				}));
 
