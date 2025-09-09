@@ -1,0 +1,38 @@
+{
+  "name": "obsidian-swiftstorm-remote-vault",
+  "version": "1.0.0",
+  "description": "Плагин для Obsidian для подключения к swiftStorm хранилищу через SMB/SFTP",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "version": "node version-bump.mjs && git add manifest.json versions.json"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "swiftstorm",
+    "sftp",
+    "smb",
+    "remote",
+    "vault"
+  ],
+  "author": "swiftStorm Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "builtin-modules": "^3.2.0",
+    "esbuild": "0.13.12",
+    "obsidian": "^0.15.0",
+    "tslib": "2.3.1",
+    "typescript": "4.4.4",
+    "url-parse": "^1.5.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-ssh": "^13.2.1"
+  }
+}

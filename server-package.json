@@ -1,0 +1,22 @@
+{
+  "name": "swiftstorm-sftp-server",
+  "version": "1.0.0",
+  "description": "SFTP сервер для swiftStorm плагина",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-ssh": "^13.1.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["sftp", "swiftstorm", "obsidian"],
+  "author": "swiftStorm Team",
+  "license": "MIT"
+}
+

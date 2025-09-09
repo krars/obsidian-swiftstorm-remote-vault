@@ -1,0 +1,20 @@
+{
+  "id": "swiftstorm-remote-vault",
+  "name": "swiftStorm Remote Vault",
+  "version": "2.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Двусторонняя синхронизация с удаленным хранилищем swiftStorm через безопасное Telegram-подтверждение",
+  "author": "swiftStorm Team",
+  "authorUrl": "https://github.com/krars/swiftstorm",
+  "fundingUrl": "https://github.com/sponsors/krars",
+  "isDesktopOnly": true,
+  "keywords": [
+    "sync",
+    "remote",
+    "vault",
+    "telegram",
+    "swiftstorm",
+    "markdown",
+    "notes"
+  ]
+}
