@@ -125,6 +125,12 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 			return;
 		}
 
+		// Проверяем, поддерживается ли fetch на мобильных устройствах
+		if (typeof fetch === 'undefined') {
+			new Notice('❌ Мобильная версия не поддерживает эту функцию. Используйте десктопную версию.');
+			return;
+		}
+
 		try {
 			new Notice('🔄 Отправка запроса подтверждения в Telegram...');
 			
@@ -231,6 +237,12 @@ export default class swiftStormRemoteVaultPlugin extends Plugin {
 	async syncVault() {
 		if (!this.settings.username) {
 			new Notice('❌ Сначала зарегистрируйтесь через Telegram');
+			return;
+		}
+
+		// Проверяем, поддерживается ли fetch на мобильных устройствах
+		if (typeof fetch === 'undefined') {
+			new Notice('❌ Мобильная версия не поддерживает синхронизацию. Используйте десктопную версию.');
 			return;
 		}
 
@@ -600,27 +612,35 @@ class swiftStormSettingTab extends PluginSettingTab {
 		}
 
 		// Кнопка подключения
-		if (!this.plugin.settings.isRegistered && this.plugin.settings.telegramUsername) {
+		if (!this.plugin.settings.isRegistered) {
 			new Setting(containerEl)
 				.setName("Подключение")
 				.setDesc("Подключиться через Telegram")
 				.addButton(btn => btn
 					.setButtonText("Подключиться через Telegram")
+					.setDisabled(!this.plugin.settings.telegramUsername)
 					.onClick(() => {
+						if (!this.plugin.settings.telegramUsername) {
+							new Notice('❌ Сначала введите Telegram username');
+							return;
+						}
 						this.plugin.registerViaTelegram();
 					}));
 		}
 
 		// Кнопка синхронизации
-		if (this.plugin.settings.isRegistered) {
-			new Setting(containerEl)
-				.setName("Синхронизация")
-				.setDesc("Синхронизировать хранилище с сервера")
-				.addButton(btn => btn
-					.setButtonText("Синхронизировать хранилище")
-					.onClick(() => {
-						this.plugin.syncVault();
-					}));
-		}
+		new Setting(containerEl)
+			.setName("Синхронизация")
+			.setDesc("Синхронизировать хранилище с сервера")
+			.addButton(btn => btn
+				.setButtonText("Синхронизировать хранилище")
+				.setDisabled(!this.plugin.settings.isRegistered)
+				.onClick(() => {
+					if (!this.plugin.settings.isRegistered) {
+						new Notice('❌ Сначала подключитесь через Telegram');
+						return;
+					}
+					this.plugin.syncVault();
+				}));
 	}
 }

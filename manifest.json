@@ -7,7 +7,7 @@
   "author": "Kravchuk A.S.",
   "authorUrl": "https://github.com/krars/swiftstorm",
   "fundingUrl": "https://github.com/sponsors/krars",
-  "isDesktopOnly": true,
+  "isDesktopOnly": false,
   "keywords": [
     "sync",
     "remote",
